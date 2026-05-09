@@ -1,0 +1,4 @@
+interface:
+  display_name: "Amazon India Playwright Auth"
+  short_description: "Reuse Amazon India login with persistent Playwright automation"
+  default_prompt: "Use this skill to automate amazon.in login, reuse a persistent Chromium session, handle OTP checkpoints manually when needed, and search products or generate Playwright tests for the flow."

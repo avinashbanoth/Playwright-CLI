@@ -1,0 +1,14 @@
+node_modules/
+playwright-report/
+test-results/
+.playwright/
+.playwright-cli/
+.auth/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Persistent browser profile for authenticated Playwright sessions
+playwright-profile/
