@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shopping Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .chat-container { height: calc(100vh - 180px); }
+        .message-bot { background-color: #f3f4f6; border-bottom-left-radius: 0; }
+        .message-user { background-color: #2563eb; color: white; border-bottom-right-radius: 0; }
+        .amazon-orange { color: #ff9900; }
+        .amazon-bg { background-color: #232f3e; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+
+    <!-- Header -->
+    <nav class="amazon-bg p-4 text-white shadow-lg">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-shopping-cart amazon-orange text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">AI <span class="amazon-orange">Shopping</span> Assistant</span>
+            </div>
+            <div class="text-sm text-gray-400">Powered by Llama 3.3 & Playwright</div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto max-w-4xl mt-6 px-4">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <!-- Chat Area -->
+            <div id="chat-window" class="chat-container overflow-y-auto p-6 space-y-4">
+                <div class="flex justify-start">
+                    <div class="message-bot p-4 rounded-2xl max-w-[80%] shadow-sm">
+                        Hello! I'm your AI Shopping Assistant. Ask me about groceries, or just say a product name and I'll find it on Amazon for you!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-gray-200 bg-gray-50">
+                <form id="chat-form" class="flex space-x-4">
+                    <input type="text" id="user-input" 
+                        class="flex-1 border border-gray-300 rounded-full px-6 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
+                        placeholder="Type a message or 'Search for iPhone 16'...">
+                    <button type="submit" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center transition shadow-lg">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
+        function appendMessage(content, isUser = false, isTool = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            const msg = document.createElement('div');
+            msg.className = `p-4 rounded-2xl max-w-[80%] shadow-sm ${isUser ? 'message-user' : 'message-bot'}`;
+            
+            if (isTool) {
+                msg.innerHTML = `<i class="fas fa-external-link-alt amazon-orange mr-2"></i> ${content}`;
+            } else {
+                msg.textContent = content;
+            }
+            
+            wrapper.appendChild(msg);
+            chatWindow.appendChild(wrapper);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Clear input and show user message
+            userInput.value = '';
+            appendMessage(text, true);
+
+            // Add loading placeholder
+            const loadingWrapper = document.createElement('div');
+            loadingWrapper.className = 'flex justify-start opacity-50';
+            loadingWrapper.innerHTML = '<div class="message-bot p-4 rounded-2xl">Assistant is thinking...</div>';
+            chatWindow.appendChild(loadingWrapper);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                
+                const data = await response.json();
+                chatWindow.removeChild(loadingWrapper);
+                
+                if (data.error) {
+                    appendMessage("Sorry, I encountered an error: " + data.error);
+                } else {
+                    appendMessage(data.content, false, data.toolTriggered);
+                }
+            } catch (err) {
+                chatWindow.removeChild(loadingWrapper);
+                appendMessage("Failed to connect to the server.");
+            }
+        });
+    </script>
+</body>
+</html>

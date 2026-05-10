@@ -25,6 +25,29 @@ npx playwright-cli -s=amazonlive open https://www.amazon.in --browser=chrome --h
 
 ---
 
+## 🤖 AI Shopping Assistant (Stable Mode)
+
+You can now chat with an AI assistant that understands your grocery needs and can automatically trigger Amazon searches using **Llama 3.3 (Groq)** and **Playwright CLI**.
+
+### Setup
+1. Add your Groq API key to the `.env` file:
+   ```env
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
+2. Run the Web UI:
+   ```bash
+   npm run web
+   ```
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### How it works (The Workflow)
+- **Stable Tool Calling:** The assistant uses a custom `SEARCH_TRIGGER` JSON format to communicate with the backend. This bypasses common API issues and ensures 100% reliable search execution.
+- **Dynamic Search:** When you mention a product, the Llama 3.3 model extracts the product name.
+- **CLI Execution:** The Node.js server dynamically builds and executes a `playwright-cli` command to open a browser window directly at the Amazon search results for that product.
+- **Persistent State:** The CLI uses the `amazon-cli-visible` profile, meaning it remembers your login and shopping cart across sessions.
+
+---
+
 ## 🌟 Key Features
 
 - **Persistent Authentication:** Uses `launchPersistentContext` to save cookies and session data, minimizing the need for frequent logins.
@@ -37,13 +60,14 @@ npx playwright-cli -s=amazonlive open https://www.amazon.in --browser=chrome --h
 
 ## 🏗️ Architecture & Workflow
 
-The project is built on a "Persistent Profile" architecture:
+The project follows a "Persistent Profile" architecture:
 
-1.  **Auth Helper (`amazon-auth.js`):** Centralizes all logic for browser initialization, login detection, and product searching.
-2.  **Session Storage (`playwright-profile/`):** 
+1.  **Backend Server (`server.js`):** An Express.js server that integrates LangChain and Groq. It parses AI responses and triggers local shell commands (Playwright CLI).
+2.  **Auth Helper (`amazon-auth.js`):** Centralizes logic for browser initialization, login detection, and automated testing flows.
+3.  **Session Storage (`playwright-profile/`):** 
     - `amazon/`: Dedicated profile for automated test runs.
-    - `amazon-cli-visible/`: Separate profile for manual debugging/inspections.
-3.  **Test Suite (`tests/`):** Contains functional specs that import the auth helper to perform high-level actions without worrying about authentication state.
+    - `amazon-cli-visible/`: Separate profile for manual debugging and AI-triggered CLI runs.
+4.  **Test Suite (`tests/`):** Functional specs that reuse the persistent session for verification.
 
 ---
 
@@ -67,6 +91,9 @@ Create a `.env` file in the root directory:
 GMAIL_ID=your-email@example.com
 AMAZON_PASSWORD=your-password
 
+# AI Credentials
+GROQ_API_KEY=your_api_key_here
+
 # Automation Settings
 HEADLESS=false # Set to true for background runs once authenticated
 ```
@@ -77,9 +104,10 @@ HEADLESS=false # Set to true for background runs once authenticated
 
 | Command | Usage Scenario | Purpose |
 | :--- | :--- | :--- |
+| `npm run web` | **Everyday Use** | Launches the AI Chatbot Web UI at http://localhost:3000. |
 | `npm run amazon:auth` | **Setup Phase** | Initializes the persistent session. Run this first to log in and handle any OTPs. |
-| `npm run amazon:test` | **Development/Testing** | Executes the iPhone 16 search test using the saved session. |
-| `npm test` | **CI/Full Suite** | Runs all Playwright tests in the `tests/` directory. |
+| `npm run amazon:test` | **Testing** | Executes the iPhone 16 search test using the saved session. |
+| `npm run chatbot` | **CLI Chat** | Runs the AI assistant directly in your terminal. |
 
 ---
 
@@ -106,7 +134,9 @@ When you run `npm run amazon:auth`, if Amazon asks for an OTP or 2FA:
 ```text
 ├── playwright-profile/    # Local storage for browser sessions (Git ignored)
 ├── tests/                 # Playwright test specifications
-│   └── amazon-iphone16.spec.ts
+├── public/                # Web UI frontend assets
+├── server.js              # AI Assistant Backend (Web)
+├── chatbot.js             # AI Assistant CLI version
 ├── amazon-auth.js         # Core authentication and search logic
 ├── playwright.config.js   # Global Playwright configuration
 └── README.md              # You are here!

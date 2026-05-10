@@ -9,6 +9,8 @@
   "scripts": {
     "amazon:auth": "node amazon-auth.js",
     "amazon:test": "playwright test tests/amazon-iphone16.spec.ts",
+    "chatbot": "node chatbot.js",
+    "web": "node server.js",
     "test": "playwright test"
   },
   "keywords": [],
@@ -18,6 +20,10 @@
     "@playwright/test": "^1.59.1"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "@langchain/groq": "^1.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "langchain": "^1.4.0",
+    "zod": "^4.4.3"
   }
 }
