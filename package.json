@@ -7,6 +7,9 @@
     "test": "tests"
   },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "amazon:auth": "node amazon-auth.js",
     "amazon:test": "playwright test tests/amazon-iphone16.spec.ts",
     "chatbot": "node chatbot.js",
@@ -21,9 +24,19 @@
   },
   "dependencies": {
     "@langchain/groq": "^1.2.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "framer-motion": "^12.38.0",
     "langchain": "^1.4.0",
+    "lucide-react": "^1.14.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "tailwind-merge": "^3.5.0",
+    "vite": "^8.0.11",
     "zod": "^4.4.3"
   }
 }
