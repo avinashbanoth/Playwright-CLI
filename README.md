@@ -81,6 +81,7 @@ The project follows a "Persistent Profile" architecture:
 Clone the repository and install dependencies:
 ```bash
 npm install
+npm install -g playwright-cli
 npx playwright install chrome
 ```
 
